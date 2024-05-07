@@ -1,0 +1,15 @@
+ 1074  2024-05-08 00:22:12 firewall-cmd --zone=public --list-ports
+ 1075  2024-05-08 00:22:49 firewall-cmd --zone=public --add-port=18080/tcp --permanent
+ 1076  2024-05-08 00:22:50 firewall-cmd --zone=public --add-port=21800/tcp --permanent
+ 1077  2024-05-08 00:22:52 firewall-cmd --reload
+ 1078  2024-05-08 00:22:55 firewall-cmd --zone=public --list-ports
+ 1079  2024-05-08 00:23:23 firewall-cmd --zone=public --add-port=31800/tcp --permanent
+ 1080  2024-05-08 00:23:26 firewall-cmd --reload
+ 1081  2024-05-08 00:23:29 firewall-cmd --zone=public --list-ports
+ 1082  2024-05-08 00:25:14 firewall-cmd --zone=public --remove-port=18080/tcp --permanent
+ 1083  2024-05-08 00:25:25 firewall-cmd --zone=public --remove-port=21800/tcp --permanent
+ 1084  2024-05-08 00:25:31 firewall-cmd --reload
+ 1085  2024-05-08 00:25:34 firewall-cmd --zone=public --list-ports
+ 1086  2024-05-08 00:26:00 firewall-cmd --zone=public --add-port=38080/tcp --permanent
+ 1087  2024-05-08 00:26:33 firewall-cmd --reload
+ 1088  2024-05-08 00:26:36 firewall-cmd --zone=public --list-ports
