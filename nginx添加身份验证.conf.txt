@@ -1,0 +1,28 @@
+
+# yum install httpd-tools
+# 安装完成后，您可以运行以下命令来验证是否已成功安装htpasswd工具:
+
+# htpasswd –v
+
+# 如果hthtpasswd安装成功，将显示htpasswd的版本信息。否则，您可能需要重新启动系统后再次尝试安装。
+
+# 创建加密文件
+
+# touch /etc/nginx/htpasswd
+# htpasswd -c /etc/nginx/htpasswd admin
+
+# 然后输入密码，即可创建一个具有管理员权限的用户 admin。
+
+server {
+    listen 80;
+    server_name example.com; # 替换成自己的域名或 IP 地址
+    location / {
+        proxy_pass http://localhost:18080; # 将请求转发到 SkyWalking 服务器
+        auth_basic “Restricted”; # 启用基本身份验证，显示提示信息
+        auth_basic_user_file /etc/nginx/htpasswd; # 指定存储用户名和密码的文件路径
+    }
+
+}
+
+                        
+# 原文链接：https://blog.csdn.net/dzqxwzoe/article/details/136595829
