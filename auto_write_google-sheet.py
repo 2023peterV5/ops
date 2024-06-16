@@ -11,8 +11,8 @@ app = FastAPI()
 
 # 定义要追加的数据,A,B,C列用空格占位
 data_to_append = [
-    ["","gag01.com","2024-03-12"," ", "www @", "p-kc311zjcdn.abcty1.com","前台-1"],
-    ["","gag01app.com","2024-03-12"," ", "www @", "p-kc311zjcdn.abcty1.com","app-1"]
+    ["","www01.com","2024-03-12"," ", "www @", "pk-kxxz.axxx1.com","前台-1"],
+    ["","wwwapp.com","2024-03-12"," ", "www @", "pk-kxxz.axxx1.com","app-1"]
 ]
 
 # 将信息写入Google Sheets
