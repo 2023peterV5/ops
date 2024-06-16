@@ -1,0 +1,46 @@
+#!/bin/bash
+rm -rf test.csv
+region="us-east-1"
+echo "实例名称,实例ID,私网IP,实例类型,系统,磁盘">>test.csv
+instancesids=`aws ec2 describe-instances --region $region|jq -r .Reservations[].Instances[].InstanceId`
+
+for instancesid in $instancesids
+do
+    instanceinfo=`aws ec2 describe-instances --instance-ids $instancesid --region $region|jq -r .Reservations[].Instances[]`
+    ImageId=`echo $instanceinfo|jq -r .ImageId`
+    InstanceId=`echo $instanceinfo|jq -r .InstanceId`
+    InstanceName=`aws ec2 describe-tags --filters "Name=resource-id,Values='$instancesid'" "Name=key,Values=Name" --region $region|jq -r .Tags[].Value`
+    PlatformDetails=`aws ec2 describe-images --image-ids $ImageId|jq -r .Images[].PlatformDetails`
+    PrivateIpAddress=`echo $instanceinfo|jq -r .PrivateIpAddress`
+
+    PublicIpAddress=`echo $instanceinfo |jq -r .PublicIpAddress`
+    InstanceType=`echo $instanceinfo|jq -r .InstanceType`
+    status=`echo $instanceinfo|jq -r .State.Name`
+    VolumeIds=`echo $instanceinfo|jq -r .BlockDeviceMappings[].Ebs.VolumeId`
+    CPUSize=`aws ec2 describe-instance-types --filters "Name=instance-type,Values=$InstanceType" | jq  -r .InstanceTypes[].VCpuInfo.DefaultVCpus`
+    MemorySize=`aws ec2 describe-instance-types --filters "Name=instance-type,Values=$InstanceType" | jq  -r .InstanceTypes[].MemoryInfo.SizeInMiB`
+    BandWidth=`aws ec2 describe-instance-types --filters "Name=instance-type,Values=$InstanceType" |jq -r .InstanceTypes[].NetworkInfo.NetworkPerformance `
+    i=0
+    VolumeIdSize=()
+    for VolumeId in $VolumeIds
+    do
+        size=`aws ec2 describe-volumes --volume-ids $VolumeId --region $region |jq -r .Volumes[].Size`
+        VolumeIdSize[$i]=`echo $size`
+        i=`expr $i + 1`
+    done
+
+    sum=0
+    for size in ${VolumeIdSize[@]}
+    do
+        sum=`expr $sum + $size`
+    done
+    echo """实例名称：$InstanceName,
+            实例ID: $InstanceId,
+            公网IP: $PublicIpAddress
+            内网IP:$PrivateIpAddress,
+            实例类型:$InstanceType,
+            系统: $PlatformDetails,
+            CPU: $CPUSize
+            内存(MiB): $MemorySize
+            磁盘: $sum""">>test.csv
+done

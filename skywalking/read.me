@@ -1,0 +1,70 @@
+因skywalking以es做存储，nacos做注册中心，所以需要优先部署，以下是上述架构部署的顺序：
+
+es集群-->nacos注册中心-->skywalking-oap集群-->nginx-->skywalking-agent
+
+
+
+架构中还涉及到证书，先把证书创建，做好备份：
+# 生成证书====>>此操作skywalking集群公用，请务必做好备份
+# ----生成根证书
+mkdir cert && cd cert
+openssl genpkey -algorithm RSA -out ca.key
+openssl req -new -key ca.key -out ca.csr
+openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt -days 3650
+ 
+# ---server证书配置
+echo """
+[ req ]
+default_bits            = 4096
+distinguished_name      = req_distinguished_name
+req_extensions          = req_ext
+x509_extensions         = v3_ca
+ 
+[ req_distinguished_name ]
+countryName             = Country Name (2 letter code)
+countryName_default     = US
+stateOrProvinceName     = State or Province Name (full name)
+stateOrProvinceName_default = California
+localityName            = Locality Name (eg, city)
+localityName_default    = San Francisco
+organizationName        = Organization Name (eg, company)
+organizationName_default = My Company
+commonName              = Common Name (e.g. server FQDN or YOUR name)
+commonName_default      = 172.16.10.101
+emailAddress            = Email Address
+emailAddress_default    = admin@example.com
+ 
+[ req_ext ]
+subjectAltName = @alt_names
+ 
+[ v3_ca ]
+subjectAltName = @alt_names
+ 
+[ alt_names ]
+IP.1   = 172.xx.xx.184
+IP.2   = 172.xx.xx.183
+IP.3   = 172.xx.xx.182
+IP.4   = 172.xx.xx.181
+IP.5   = 172.xx.xx.180
+""" > server.cnf
+ 
+# ---执行命令，生成证书
+openssl genpkey -algorithm RSA -out server.key
+openssl req -new -key server.key -out server.csr -config server.cnf
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 3650 -extensions req_ext -extfile server.cnf
+ 
+# 将server.key 转换成pkcs8
+openssl pkcs8 -topk8 -nocrypt -in server.key -out server.pem
+ 
+# 查看生成的证书
+$ ll
+total 36
+-rw-r--r--. 1 swadmin swadmin  749 May  7 20:20 ca.crt
+-rw-r--r--. 1 swadmin swadmin  599 May  7 20:20 ca.csr
+-rw-r--r--. 1 swadmin swadmin  916 May  7 20:20 ca.key
+-rw-r--r--. 1 swadmin swadmin   17 May  7 20:20 ca.srl
+-rw-r--r--. 1 swadmin swadmin 1004 May  7 20:20 server.cnf
+-rw-r--r--. 1 swadmin swadmin  928 May  7 20:20 server.crt
+-rw-r--r--. 1 swadmin swadmin  794 May  7 20:20 server.csr
+-rw-r--r--. 1 swadmin swadmin  916 May  7 20:20 server.key
+-rw-r--r--. 1 swadmin swadmin  916 May  7 20:20 server.pem
