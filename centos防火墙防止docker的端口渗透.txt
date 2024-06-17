@@ -1,0 +1,54 @@
+1、安装和启动 firewalld:
+```
+sudo yum install firewalld -y
+sudo systemctl start firewalld
+sudo systemctl enable firewalld
+
+```
+2、检查和配置 iptables 后端:
+```
+sudo firewall-cmd --set-default-zone=public
+sudo firewall-cmd --permanent --zone=trusted --change-interface=docker0
+sudo firewall-cmd --reload
+
+
+```
+
+3、创建和配置 firewalld 规则
+```
+sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent
+sudo firewall-cmd --reload
+
+
+```
+
+4、配置 Docker 容器网络:
+确保 Docker 容器的网络流量经过 firewalld 管理
+创建或编辑 Docker 配置文件 /etc/docker/daemon.json 并添加以下内容：
+```
+{
+  "iptables": false
+}
+```
+重新启动 Docker 服务
+```
+sudo systemctl restart docker
+
+
+```
+
+5、将 Docker 的默认桥接网络接口（docker0）添加到 trusted 区域
+
+```
+sudo firewall-cmd --zone=trusted --add-interface=docker0 --permanent
+sudo firewall-cmd --reload
+
+```
+6、确保防火墙规则生效
+确保新的防火墙规则生效，并且流量通过 firewalld 管理
+```
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-all-zones
+
+
+```
