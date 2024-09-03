@@ -86,7 +86,7 @@ do
 
     if [[ $SERVICE == "nginx" ]]; then
         node_exporter_singel_check
-    elif [[ $SERVICE == "master" && $SERVICE == "slave" ]]; then
+    elif [[ $SERVICE == "master" || $SERVICE == "slave" ]]; then
         mysql_exporter_singel_check
         redis_exporter_singel_check
         node_exporter_singel_check
