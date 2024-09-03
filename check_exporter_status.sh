@@ -1,5 +1,5 @@
 #/bin/bash
-for msg in $(cat remote-backup.info)
+for msg in $(cat /opt/software/prometheus-2.52.0.linux-amd64/targets/check_exporter_status/inpt-remote-backup.info)
 do      
     IP=$(echo $msg | cut -d "," -f2)
     TENANT=$(echo $msg | cut -d "," -f1)
@@ -7,18 +7,18 @@ do
     date=$(date "+%Y-%m-%d %H:%M:%S")
 
     # hostname
-    # hostname=$(curl -s http://18.215.54.73:9100/metrics| grep node_uname_info | grep -v "HELP\|TYPE" | awk -F ',' '{print $3}')
+    # hostname=$(curl -s --connect-timeout 2 http://18.215.54.73:9100/metrics| grep node_uname_info | grep -v "HELP\|TYPE" | awk -F ',' '{print $3}')
     # node status
-    node_status=$(curl -s http://${IP}:9100/metrics| grep node_uname_info | grep -v "HELP\|TYPE" | awk  '{print $9}')
+    node_status=$(curl -s --connect-timeout 2 http://${IP}:9100/metrics| grep node_uname_info | grep -v "HELP\|TYPE" | awk  '{print $9}')
     # mysql status
-    mysql_status=$(curl -s http://${IP}:9104/metrics | grep mysql_up | grep -v "HELP\|TYPE" |awk '{print $2}')
+    mysql_status=$(curl -s --connect-timeout 2 http://${IP}:9104/metrics | grep mysql_up | grep -v "HELP\|TYPE" |awk '{print $2}')
     # redis status
-    redis_status=$(curl -s http://${IP}:9121/metrics | grep redis_up | grep -v "HELP\|TYPE" |awk '{print $2}')
+    redis_status=$(curl -s --connect-timeout 2 http://${IP}:9121/metrics | grep redis_up | grep -v "HELP\|TYPE" |awk '{print $2}')
 
     # 判断获取到的状态的信息条数
-    node_status_num=$(curl -s http://${IP}:9100/metrics| grep node_uname_info | grep -v "HELP\|TYPE" | awk  '{print $9}' | wc -l)
-    mysql_status_num=$(curl -s http://${IP}:9104/metrics | grep mysql_up | grep -v "HELP\|TYPE" |awk '{print $2}' | wc -l)
-    redis_status_num=$(curl -s http://${IP}:9121/metrics | grep redis_up | grep -v "HELP\|TYPE" |awk '{print $2}' | wc -l)
+    node_status_num=$(curl -s --connect-timeout 2 http://${IP}:9100/metrics| grep node_uname_info | grep -v "HELP\|TYPE" | awk  '{print $9}' | wc -l)
+    mysql_status_num=$(curl -s --connect-timeout 2 http://${IP}:9104/metrics | grep mysql_up | grep -v "HELP\|TYPE" |awk '{print $2}' | wc -l)
+    redis_status_num=$(curl -s --connect-timeout 2 http://${IP}:9121/metrics | grep redis_up | grep -v "HELP\|TYPE" |awk '{print $2}' | wc -l)
 
     # node_status状态判断
     function node_status_check(){
@@ -53,7 +53,7 @@ do
         if [[ $node_status_num -eq 1 ]]; then
             node_status_check
         elif [[ $node_status_num -gt 1 ]]; then
-            node_status=$(curl -s http://${IP}:9100/metrics| grep node_uname_info | grep -v "HELP\|TYPE" | awk  'NR==1{print $9}')
+            node_status=$(curl -s --connect-timeout 2 http://${IP}:9100/metrics| grep node_uname_info | grep -v "HELP\|TYPE" | awk  'NR==1{print $9}')
             node_status_check
         else
             echo "$date【$TENANT ${IP} node_exporter】prometheus server 接受数据失败,请登录租户服务器进行检查" >> exporter_status_err
@@ -65,7 +65,7 @@ do
         if [[ $mysql_status_num -eq 1 ]]; then
             mysql_status_check
         elif [[ $mysql_status_num -gt 1 ]]; then
-            mysql_status=$(curl -s http://${IP}:9104/metrics | grep mysql_up | grep -v "HELP\|TYPE" |awk 'NR==1{print $2}')
+            mysql_status=$(curl -s --connect-timeout 2 http://${IP}:9104/metrics | grep mysql_up | grep -v "HELP\|TYPE" |awk 'NR==1{print $2}')
             mysql_status_check
         else
             echo "$date【$TENANT ${IP} mysql_exporter】prometheus server 接受数据失败,请登录租户服务器进行检查" >> exporter_status_err
@@ -77,7 +77,7 @@ do
         if [[ $redis_status_num -eq 1 ]]; then
             redis_status_check
         elif [[ $redis_status_num -gt 1 ]]; then
-            redis_status=$(curl -s http://${IP}:9121/metrics | grep redis_up | grep -v "HELP\|TYPE" |awk 'NR==1{print $2}')
+            redis_status=$(curl -s --connect-timeout 2 http://${IP}:9121/metrics | grep redis_up | grep -v "HELP\|TYPE" |awk 'NR==1{print $2}')
             redis_status_check
         else
             echo "$date【$TENANT ${IP} redis_exporter】prometheus server 接受数据失败,请登录租户服务器进行检查" >> exporter_status_err
