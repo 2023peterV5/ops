@@ -1,0 +1,38 @@
+[root@bx-es-cluster-2 candice]# df -Th
+Filesystem     Type      Size  Used Avail Use% Mounted on
+devtmpfs       devtmpfs   32G     0   32G   0% /dev
+tmpfs          tmpfs      32G     0   32G   0% /dev/shm
+tmpfs          tmpfs      32G  552K   32G   1% /run
+tmpfs          tmpfs      32G     0   32G   0% /sys/fs/cgroup
+/dev/xvda5     xfs       499G  429G   71G  86% /
+/dev/xvda2     xfs       994M  440M  555M  45% /boot
+/dev/loop0     ext4       20G  188K   19G   1% /tmp
+/dev/xvda1     vfat       99M  5.8M   94M   6% /boot/efi
+tmpfs          tmpfs     6.3G     0  6.3G   0% /run/user/1003
+tmpfs          tmpfs     6.3G     0  6.3G   0% /run/user/1002
+[root@bx-es-cluster-2 candice]# growpart /dev/xvda 5
+CHANGED: partition=5 start=2265088 old: size=1046310879 end=1048575966 new: size=2145218527 end=2147483614
+[root@bx-es-cluster-2 candice]# xfs_growfs -d /
+meta-data=/dev/xvda5             isize=512    agcount=224, agsize=584512 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=1, sparse=1, rmapbt=0
+         =                       reflink=1    bigtime=0 inobtcount=0
+data     =                       bsize=4096   blocks=130788859, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0, ftype=1
+log      =internal log           bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+data blocks changed from 130788859 to 268152315
+[root@bx-es-cluster-2 candice]# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs         32G     0   32G   0% /dev
+tmpfs            32G     0   32G   0% /dev/shm
+tmpfs            32G  552K   32G   1% /run
+tmpfs            32G     0   32G   0% /sys/fs/cgroup
+/dev/xvda5     1023G  432G  592G  43% /
+/dev/xvda2      994M  440M  555M  45% /boot
+/dev/loop0       20G  188K   19G   1% /tmp
+/dev/xvda1       99M  5.8M   94M   6% /boot/efi
+tmpfs           6.3G     0  6.3G   0% /run/user/1003
+tmpfs           6.3G     0  6.3G   0% /run/user/1002
